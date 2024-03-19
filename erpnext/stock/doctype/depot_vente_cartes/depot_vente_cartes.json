@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2024-02-08 18:24:29.395801",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "date_du_d\u00e9p\u00f4t",
+  "nombre_de_cartes",
+  "r\u00e9f\u00e9rence_du_bc",
+  "distributeur",
+  "commercial",
+  "date_op\u00e9ration",
+  "date_collecte",
+  "liste_des_id_de_cartes"
+ ],
+ "fields": [
+  {
+   "fieldname": "date_du_d\u00e9p\u00f4t",
+   "fieldtype": "Date",
+   "label": "Date du d\u00e9p\u00f4t"
+  },
+  {
+   "fieldname": "nombre_de_cartes",
+   "fieldtype": "Float",
+   "label": "Nombre de cartes"
+  },
+  {
+   "fieldname": "r\u00e9f\u00e9rence_du_bc",
+   "fieldtype": "Link",
+   "label": "R\u00e9f\u00e9rence du BC",
+   "options": "Sales Order"
+  },
+  {
+   "fieldname": "distributeur",
+   "fieldtype": "Link",
+   "label": "Distributeur",
+   "options": "Customer",
+   "unique": 1
+  },
+  {
+   "fieldname": "commercial",
+   "fieldtype": "Link",
+   "label": "Commercial",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "liste_des_id_de_cartes",
+   "fieldtype": "Table",
+   "label": "Liste des ID de cartes",
+   "options": "Depot vente - ID cartes"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "DEP-VE-.#####"
+  },
+  {
+   "fieldname": "date_op\u00e9ration",
+   "fieldtype": "Date",
+   "label": "Date op\u00e9ration"
+  },
+  {
+   "fieldname": "date_collecte",
+   "fieldtype": "Date",
+   "label": "Date collecte"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-03-13 17:23:07.989192",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Depot vente cartes",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

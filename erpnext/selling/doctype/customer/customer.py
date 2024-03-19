@@ -3,7 +3,7 @@
 
 
 import json
-
+import re # personnal
 import frappe
 import frappe.defaults
 from frappe import _, msgprint, qb
@@ -135,6 +135,20 @@ class Customer(TransactionBase):
 		"""If customer created from Lead, update customer id in quotations, opportunities"""
 		self.update_lead_status()
 
+	def validate_email(email):
+		pattern = r'^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+		if re.match(pattern, email):
+			return True
+		else:
+			return False
+
+	def validate_ifu(ifu):
+		if re.match(r'^[a-zA-Z0-9]{13}$', ifu):
+			return True
+		else :
+			return False
+		
+    
 	def validate(self):
 		self.flags.is_new_doc = self.is_new()
 		self.flags.old_lead = self.lead_name
@@ -145,6 +159,20 @@ class Customer(TransactionBase):
 		self.validate_default_bank_account()
 		self.validate_internal_customer()
 		self.add_role_for_user()
+
+		email = self.custom_email
+		if email:
+			if not Customer.validate_email(email):
+				frappe.throw("L'adresse e-mail est invalide.")
+			else:
+				pass
+
+		ifu = self.custom_ifu
+		if ifu:
+			if not Customer.validate_ifu(ifu):
+				frappe.throw('Veuillez renseigner un IFU valide.')
+			else :
+				pass
 
 		# set loyalty program tier
 		if frappe.db.exists("Customer", self.name):

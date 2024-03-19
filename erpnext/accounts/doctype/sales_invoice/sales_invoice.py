@@ -43,6 +43,8 @@ from erpnext.stock.doctype.serial_no.serial_no import get_delivery_note_serial_n
 
 form_grid_templates = {"items": "templates/form_grid/item_grid.html"}
 
+# personnal import 
+import requests, json
 
 class SalesInvoice(SellingController):
 	# begin: auto-generated types
@@ -246,7 +248,289 @@ class SalesInvoice(SellingController):
 				"overflow_type": "billing",
 			}
 		]
+  
+  
+   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+	def sfe_api(self):
+		# Set up the headers with your API key
+		# test
+		access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjMyMDE4MTA0MDE4Njl8VFMwMTAwODE5MyIsInJvbGUiOiJUYXhwYXllciIsIm5iZiI6MTcwMzg0ODgwMSwiZXhwIjoxNzE5NjYwMDAxLCJpYXQiOjE3MDM4NDg4MDEsImlzcyI6ImltcG90cy5iaiIsImF1ZCI6ImltcG90cy5iaiJ9.EJj2fqTE1wPU29Qz77MJni3Tu9a5Sd09H9Tv8fVRrQ8"  # Remplacez "votre_jetondacces" par votre jeton d'accès réel
+		# en production
+		# access_token = request.user.bearer_token
+		# En-têtes HTTP
+		headers = {
+			"Authorization": f"Bearer {access_token}",
+			"Content-Type": "application/json"
+		}
 
+		# Get the input data from the request
+		
+		ifu = '3201810401869'
+		denomination_entreprise = 'OWO FINANCIAL SERVICES'
+		#ventes = vente_list.objects.filter(facture=None, agence_v=request.user)
+		paiement = {
+				'Especes': 'ESPECES',#0
+				'Virement': 'VIREMENT',#18
+				'Carte': 'CARTEBANCAIRE',#0
+				'Chèques': 'CHEQUES',#18
+				'MTN Mobile Money': 'MOBILEMONEY',#0
+				'Moov Money': 'MOBILEMONEY',#0
+				'CeltisCash':'MOBILEMONEY',#0
+				'Crédit': 'CREDIT',#0
+				'Autre': 'AUTRE'#0
+			}
+		tax_groups = {
+				'Groupe A': 'A',#0
+				'Groupe B': 'B',#18
+				'Groupe C': 'C',#0
+				'Groupe D': 'D',#18
+				'Groupe E': 'E',#0
+				'Groupe F': 'F',#0
+				'0': '',#0
+				'1': 'A',#0
+				'5': 'B',#0
+				'3': ''#0 En attente de validation de l'API DGI
+			}
+			#calcul_taxe_sejour
+		items = []
+		customer = self.get('customer')
+		customer_details = frappe.get_doc('Customer', customer)
+
+		# Récupérer des informations spécifiques du client
+		customer_name = self.get('customer_name')
+		customer_email = customer_details.get('custom_email')
+		customer_ifu = customer_details.get('custom_ifu')
+		customer_telephone = customer_details.get('custom_téléphone')
+		customer_address = customer_details.get('custom_adresse_physique')
+  
+		articles = self.get('items') if self.get('items') else []
+		for article in articles:
+			# Récupérer la quantité et le prix de l'article
+			qty= article.get('qty')
+			rate = article.get('rate')
+
+			# Récupérer d'autres informations de l'article
+			item_code = article.get('item_code')
+			taxes_and_charges = article.get('taxes_and_charges')
+
+			# Accéder à d'autres informations de l'article à partir de la base de données
+			item_details = frappe.get_doc('Item', item_code)
+			nom_article = item_details.get('item_name')
+			taxe_specifique = item_details.get('custom_taxe_spécifique')
+			item_category = item_details.get('item_group')
+			taxe = item_details.get('custom_groupe_de_taxe')
+			groupe_taxe = taxe.get('etiquette')
+    
+			item = {
+				"code": item_code,
+				"name": nom_article,
+				"price": float(rate),
+				"quantity": float(qty),
+				"taxGroup": groupe_taxe,
+				"taxSpecific": float(taxe_specifique*qty)
+			}
+			items.append(item)
+
+		# Create the request body
+		request_data = {
+			"reference": self.get('custom_ref_originale') if self.get('custom_type_facture') == 'FA' or self.get('custom_type_facture') == 'EA' else None,
+			'ifu': ifu,
+			'aib' : tax_groups[self.get('custom_aib')],#A ou B ou ''
+			'type': self.get('custom_type_facture'),
+			"operator": {
+					"id": "",
+					"name": denomination_entreprise
+				},
+			#client = request.POST.get("client")
+			'items': items,
+			"client": {
+					"ifu": customer_ifu,
+					"name": customer_name, 
+					"contact": customer_telephone,
+					"address": customer_address
+				},
+			"payment": [
+					{
+						"name": paiement[self.get('custom_moyen_de_paiement')],
+						"amount": float(self.get('grand_total'))
+					}
+				],
+		}
+
+		try:
+			# Send the request to the API endpoint
+			response = requests.post('https://developper.impots.bj/sygmef-emcf/api/invoice', headers=headers, data=json.dumps(request_data))
+
+			# Parse the response JSON
+			response_data = response.json()
+
+			if response.status_code == 200:
+				# Get the invoice details
+				uid = response_data.get('uid', None)
+				if uid is not None:
+					# Get the invoice details
+					invoice_details = requests.get('https://developper.impots.bj/sygmef-emcf/api/invoice/' + uid, headers=headers).json()
+
+					# Finalize the invoice
+					# security_elements = requests.put('https://developper.impots.bj/sygmef-emcf/api/invoice/' + uid + '/confirm', headers=headers).json()
+
+					status ='succès'
+					# security_elements.update({'uid':uid})
+					return status, invoice_details, #security_elements # running...
+					#return response_data, security_elements # details for debug
+				else:
+					#return render(request, 'facturation/test_api.html', {'response_data': response_data})
+					#return HttpResponse(f' uid: {uid}, Failed to create invoice response_data: {response_data}')
+					status = 'Failed to create invoice'+str(response_data)
+					return status, response_data #, None
+
+		except requests.exceptions.RequestException as e:
+			#return HttpResponse(f'Error while creating invoice: {e}')
+			status = f'Error while creating invoice: {e}'
+			return status, None
+    
+    
+	def sfe_availlable():
+		jeton = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjMyMDE4MTA0MDE4Njl8VFMwMTAwODE5MyIsInJvbGUiOiJUYXhwYXllciIsIm5iZiI6MTcwMzg0ODgwMSwiZXhwIjoxNzE5NjYwMDAxLCJpYXQiOjE3MDM4NDg4MDEsImlzcyI6ImltcG90cy5iaiIsImF1ZCI6ImltcG90cy5iaiJ9.EJj2fqTE1wPU29Qz77MJni3Tu9a5Sd09H9Tv8fVRrQ8'
+        
+		url = "https://developper.impots.bj/sygmef-emcf/api/info/status"
+		access_token = jeton
+        # En-têtes HTTP
+		headers = {
+			"Authorization": f"Bearer {access_token}",
+			"Content-Type": "application/json"
+		}
+		try:
+			response = requests.get(url, headers=headers)
+			response_data = response.json()
+			# response.raise_for_status()  # Vérifie si la réponse contient une erreur HTTP
+            # Traitez la réponse normale ici
+			if response.status_code == 200:
+				status = response_data.get("status")
+				# print(f'Status SFE : {status}')
+				return response_data.get("status")
+			else:
+				frappe.msgprint(f'Response status code is : { response.status_code }')
+				return None
+		except requests.exceptions.ConnectionError as conn_error:
+			error = f'Erreur de connexion, vous n\'avez pas accès à l\'Internet ou votre connexion est instable'#:{conn_error} 
+			frappe.throw(error)
+   
+		except json.JSONDecodeError as json_error:
+			# Gérer les erreurs de décodage JSON
+			error = f'Erreur de décodage JSON : {json_error}'
+			frappe.throw(error)
+                
+		except requests.exceptions.HTTPError as http_error:
+			if http_error.response.status_code == 503:
+				error = f"Erreur 503, Le service en maintenance"
+				frappe.throw(error)
+                
+			elif http_error.response.status_code == 500:
+				error = "Un probleme est survenu lors du traitement de la requête "#, http_error
+				frappe.throw(error)
+             
+			elif http_error.response.status_code == 401:
+				error = "Jéton invalide "#, http_error
+				frappe.throw(error)
+                
+			elif http_error.response.status_code == 404:
+				error = "Api introuvable"#, http_error
+				frappe.throw(error)
+			else:
+				error = f'Erreur HTTP'# http_error
+				frappe.throw(error)
+    
+		except requests.exceptions.RequestException as req_error:
+            # print("Erreur de requête :", req_error)
+			frappe.throw('Erreur de requete')
+
+
+	""" def before_submit(doc, method):
+		# Votre logique personnalisée pour before_submit ici
+		status, invoice_details, security_elements = SalesInvoice.sfe_api(doc, doc.get('items'))
+		
+		# Ajoutez des données dans les champs personnalisés, si nécessaire
+		doc.custom_status_field = status
+		doc.custom_invoice_details_field = invoice_details
+		doc.custom_security_elements_field = security_elements """
+
+
+	def before_validate(self):
+		"""status = SalesInvoice.sfe_availlable()
+		 print(f"Code running sfe, status :{status}")
+		frappe.msgprint(f'sfe status : {status}') """
+		if SalesInvoice.sfe_availlable() :
+			status, details = SalesInvoice.sfe_api(self)
+			frappe.msgprint(details)
+			print(details)
+    
+
+		""" def before_submit(self):
+			# Récupérer la liste des articles
+			articles = self.get('items') if self.get('items') else []
+
+			if SalesInvoice.available_dgi_sfe():
+				status, details, security = SalesInvoice.sfe_api(self, articles)
+
+				codeMECeFDGI = security['codeMECeFDGI']
+				dateTime = security['dateTime']
+				qrCode = security['qrCode']
+				counters = security['counters']
+				nim = security['nim']
+				uid = security['uid']
+
+				# Générer le code QR
+				qr = qrcode.QRCode(
+					version=1,
+					error_correction=qrcode.constants.ERROR_CORRECT_L,
+					box_size=10,
+					border=4,
+				)
+				qr.add_data(qrCode)
+				qr.make(fit=True)
+				img = qr.make_image(fill_color="black", back_color="white")
+
+				# Convertir l'image en bytes
+				img_byte_array = BytesIO()
+				img.save(img_byte_array)
+				img_byte_array = img_byte_array.getvalue()
+
+				# Enregistrer l'image dans le répertoire "files" d'ERPNext
+				file_name = f"{self.name}_qr.png"
+				file_path = f"/files/{file_name}"
+				frappe.utils.upload_file(file_name, img_byte_array, self.doctype, self.name, is_private=0)
+
+				# Mettre à jour les champs personnalisés
+				date_obj = datetime.strptime(security['dateTime'], '%d/%m/%Y %H:%M:%S')
+				date_format = date_obj.strftime('%Y-%m-%d %H:%M:%S')
+
+				self.set('custom_date_normalise', date_format)
+				self.set('custom_etat', 1)
+				self.set('custom_counters_', counters)
+				self.set('custom_uid', uid)
+				self.set('custom_codemecefdgi', codeMECeFDGI)
+				self.set('custom_qrdata', qrCode)
+				self.set('custom_qrimage', file_path)
+
+				frappe.msgprint(f"****Les éléments de sécurité de la facture*****:\nDate et Heure: {dateTime}\nqrCode: {qrCode}\ncodeMECeFDGI: {codeMECeFDGI}\ncounters: {counters}\nnim: {nim}\nuid: {uid}") """
+
+    
+    
+    
+    
+    
+    
+    
 	def set_indicator(self):
 		"""Set indicator for portal"""
 		if self.outstanding_amount < 0:

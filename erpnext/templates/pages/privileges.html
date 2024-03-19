@@ -1,0 +1,86 @@
+{% extends "templates/web.html" %}
+
+{% block title %} {{ title }} {% endblock %}
+
+{% block header %}<h2>{{ title }} De {{ selected_region }}</h2>{% endblock %}
+
+{% block page_content %}
+
+
+<div class="row mb-5">
+        <div class="col-md-4"></div>
+	
+	<div class="col-md-4 align-self-end">
+                <label for="territory-select" class="sr-only">Filtrer par type de partenaire</label>
+                <select id="territory-select" class="custom-select">
+                        <option value="" selected="" disabled="">
+                                Filtrer par type de partenaire
+                        </option>
+                        {% for info in sales %}
+                        <option value="{{ info.name }}">
+                                {{ info.name }}
+                        </option>
+                        {% endfor %}
+                        <option>Autres</option>
+                </select>
+        </div>
+
+        <div class="col-md-4 align-self-end">
+                <label for="territory-select" class="sr-only">Filtrer par région</label>
+                <select id="territory-select" class="custom-select" onchange="redirectOnChange(this, event)">
+                        <option value="" selected=""  disabled="">
+                                Filtrer par région
+                        </option>
+                        {% for territory_info in territory %}
+                        <option value="{{ territory_info.territory_name }}"> {{ territory_info.territory_name }} </option>
+                        {% endfor %}
+                        <option value="all">Tout</option>
+                </select>
+        </div>
+</div>
+<div class="partners-content">
+        <div class="blog-list-content">
+        <div id="blog-list" class="row result blog-list">
+        {% for partner_info in partners %}
+                <div class="blog-card col-sm-12 col-md-4">
+                <div class="card h-100">
+                <div class="card-img-top">
+                        {% if partner_info.logo -%}
+                        <a href="{{ partner_info.route }}">
+                                <img itemprop="brand" src="{{ partner_info.logo }}" class="partner-logo"
+                                        alt="{{ partner_info.partner_name }}" title="{{ partner_info.partner_name }}" />
+                        </a>
+                        {%- endif %}
+                </div>
+                <div class="card-body">
+                        <a href="{{ partner_info.route }}">
+                                <h4>{{ partner_info.partner_name }}</h4>
+                        </a>
+                        <p style="color: #999">{{ partner_info.territory }} - {{ partner_info.partner_type }}</p>
+                        <p>{{ partner_info.custom_courriel }} - {{ partner_info.custom_telephone }}</p><br>
+			<a href="{{ partner_info.custom_localisation_google }}" target = "_blank"> Localisation Google </a>
+                </div>
+        </div>
+        </div>
+        {% endfor %}
+        </div>
+        </div>
+</div>
+<script>
+        function redirectOnChange(selectElement, event) {
+                event.preventDefault();
+                var selectedValue = selectElement.value;
+                //console.log(selectedValue);
+                if (selectedValue) {
+                //var timestamp = new Date().getTime();
+                // Vous pouvez également ajouter la logique pour construire l'URL en fonction de la valeur sélectionnée
+                var url = "{{ frappe.utils.get_url('/partners') }}?selected_region=" + encodeURIComponent(selectedValue);  //+ "&_=" + timestamp;
+                
+                // Rediriger vers la nouvelle URL
+                window.location.href = url;
+                console.log("Redirecting to:", url);
+            }
+        }
+</script>
+{% endblock %}
+

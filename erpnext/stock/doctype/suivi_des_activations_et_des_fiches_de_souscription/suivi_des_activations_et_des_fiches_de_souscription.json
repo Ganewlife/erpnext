@@ -1,0 +1,41 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-02-09 10:24:31.235581",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "cartes_depot_vente"
+ ],
+ "fields": [
+  {
+   "fieldname": "cartes_depot_vente",
+   "fieldtype": "Table",
+   "label": "Liste des cartes depot vente",
+   "options": "Liste Cartes Depot"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-03-13 18:08:07.530962",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Suivi des activations et des fiches de souscription",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
