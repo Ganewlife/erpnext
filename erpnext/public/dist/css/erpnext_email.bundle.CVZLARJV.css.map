@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../tmp/tmp-687433-YA1lztuaqKAw/erpnext/erpnext/public/scss/erpnext_email.bundle.css"],
+  "sourcesContent": [".panel-header {\n  background-color: var(--bg-color);\n  border: 1px solid var(--border-color);\n  border-radius: 3px 3px 0 0;\n}\n\n.panel-body {\n  background-color: white;\n  border: 1px solid var(--border-color);\n  border-top: none;\n  border-radius: 0 0 3px 3px;\n  overflow-wrap: break-word;\n}\n\n.sender-avatar, .sender-avatar-placeholder {\n  width: 24px;\n  height: 24px;\n  border-radius: 3px;\n  vertical-align: middle;\n}\n\n.sender-avatar-placeholder {\n  line-height: 24px;\n  text-align: center;\n  color: var(--border-color);\n  border: 1px solid var(--border-color);\n  background-color: white;\n}"],
+  "mappings": "AAAA,cACE,iCACA,qCAFF,0BAMA,YACE,sBACA,qCACA,gBATF,0BAWE,yBAGF,0CACE,WACA,YAhBF,kBAkBE,sBAGF,2BACE,iBACA,kBACA,0BACA,qCACA",
+  "names": []
+}
