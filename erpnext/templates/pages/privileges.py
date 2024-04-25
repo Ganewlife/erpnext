@@ -11,7 +11,7 @@ def get_context(context):
     context.privileges_content = frappe.get_template("templates/includes/privilege.html").render()
     selected_region = frappe.request.args.get("selected_region")
     #selected_region = "Cotonou"
-    print("Selected Region:", selected_region)
+    #print("Selected Region:", selected_region)
     #frappe.msgprint("Selected Region: {}".format(selected_region))
     selected_region = selected_region if selected_region is not None else "all"
     # Utilise une requête conditionnelle pour filtrer les partenaires en fonction de la région sélectionnée

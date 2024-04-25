@@ -1,0 +1,220 @@
+{
+ "actions": [],
+ "autoname": "format:{raison_sociale}",
+ "creation": "2024-04-24 15:30:42.934105",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "informations_sur_lediteur_sfe_column",
+  "societe",
+  "raison_sociale",
+  "ifu",
+  "rccm",
+  "email_compte",
+  "email",
+  "adresse",
+  "ville",
+  "telephone",
+  "informations_sur_le_sfe_column",
+  "nom_logiciel",
+  "version_logiciel",
+  "pays_origine",
+  "linux",
+  "production",
+  "informations_sur_le_demandeur_sfe_column",
+  "nom_premons",
+  "titre",
+  "lieu",
+  "token_jwt_de_connexion_section",
+  "jeton",
+  "nim",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "informations_sur_lediteur_sfe_column",
+   "fieldtype": "Column Break",
+   "label": "Informations sur l'editeur SFE"
+  },
+  {
+   "fieldname": "societe",
+   "fieldtype": "Link",
+   "label": "Soci\u00e9t\u00e9",
+   "no_copy": 1,
+   "options": "Company",
+   "print_hide": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "raison_sociale",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Raison Sociale",
+   "length": 60,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "ifu",
+   "fieldtype": "Data",
+   "label": "IFU",
+   "length": 13,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "rccm",
+   "fieldtype": "Data",
+   "label": "RCCM",
+   "length": 30,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "email_compte",
+   "fieldtype": "Data",
+   "label": "Email Compte",
+   "length": 60,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "length": 60
+  },
+  {
+   "fieldname": "adresse",
+   "fieldtype": "Data",
+   "label": "Adresse",
+   "length": 65
+  },
+  {
+   "fieldname": "ville",
+   "fieldtype": "Data",
+   "label": "Ville",
+   "length": 30
+  },
+  {
+   "fieldname": "telephone",
+   "fieldtype": "Phone",
+   "label": "T\u00e9l\u00e9phone",
+   "reqd": 1
+  },
+  {
+   "fieldname": "informations_sur_le_sfe_column",
+   "fieldtype": "Column Break",
+   "label": "Informations sur le SFE"
+  },
+  {
+   "fieldname": "nom_logiciel",
+   "fieldtype": "Data",
+   "label": "Nom Logiciel",
+   "length": 30
+  },
+  {
+   "fieldname": "version_logiciel",
+   "fieldtype": "Data",
+   "label": "Version Logiciel",
+   "length": 10
+  },
+  {
+   "fieldname": "pays_origine",
+   "fieldtype": "Data",
+   "label": "Pays Origine",
+   "length": 20
+  },
+  {
+   "default": "0",
+   "fieldname": "linux",
+   "fieldtype": "Check",
+   "label": "Linux"
+  },
+  {
+   "default": "0",
+   "fieldname": "production",
+   "fieldtype": "Check",
+   "label": "Production"
+  },
+  {
+   "fieldname": "informations_sur_le_demandeur_sfe_column",
+   "fieldtype": "Column Break",
+   "label": "Informations sur le demandeur SFE"
+  },
+  {
+   "fieldname": "nom_premons",
+   "fieldtype": "Data",
+   "label": "Nom Pr\u00e9noms",
+   "length": 65
+  },
+  {
+   "fieldname": "titre",
+   "fieldtype": "Data",
+   "label": "Titre",
+   "length": 60
+  },
+  {
+   "fieldname": "lieu",
+   "fieldtype": "Data",
+   "label": "Lieu",
+   "length": 60
+  },
+  {
+   "fieldname": "token_jwt_de_connexion_section",
+   "fieldtype": "Section Break",
+   "label": "Token JWT de connexion"
+  },
+  {
+   "fieldname": "nim",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "nim",
+   "length": 20,
+   "unique": 1
+  },
+  {
+   "fieldname": "jeton",
+   "fieldtype": "Small Text",
+   "label": "Jeton"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "SFE",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-04-25 08:27:07.657490",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "SFE",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "raison_sociale"
+}

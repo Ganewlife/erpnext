@@ -45,6 +45,14 @@ form_grid_templates = {"items": "templates/form_grid/item_grid.html"}
 
 # personnal import 
 import requests, json
+from num2words import num2words
+import PIL
+import qrcode
+from io import BytesIO 
+from datetime import datetime
+from frappe.utils import get_site_path
+import os
+# from frappe.utils import upload_file
 
 class SalesInvoice(SellingController):
 	# begin: auto-generated types
@@ -252,18 +260,11 @@ class SalesInvoice(SellingController):
   
    
   
-  
-  
-  
-  
-  
-  
-  
-  
-	def sfe_api(self):
+	def sfe_api(self, articles, company_dgi_details):
 		# Set up the headers with your API key
 		# test
-		access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjMyMDE4MTA0MDE4Njl8VFMwMTAwODE5MyIsInJvbGUiOiJUYXhwYXllciIsIm5iZiI6MTcwMzg0ODgwMSwiZXhwIjoxNzE5NjYwMDAxLCJpYXQiOjE3MDM4NDg4MDEsImlzcyI6ImltcG90cy5iaiIsImF1ZCI6ImltcG90cy5iaiJ9.EJj2fqTE1wPU29Qz77MJni3Tu9a5Sd09H9Tv8fVRrQ8"  # Remplacez "votre_jetondacces" par votre jeton d'accès réel
+		access_token = company_dgi_details.get('jeton')
+		#access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjMyMDE4MTA0MDE4Njl8VFMwMTAwODE5MyIsInJvbGUiOiJUYXhwYXllciIsIm5iZiI6MTcwMzg0ODgwMSwiZXhwIjoxNzE5NjYwMDAxLCJpYXQiOjE3MDM4NDg4MDEsImlzcyI6ImltcG90cy5iaiIsImF1ZCI6ImltcG90cy5iaiJ9.EJj2fqTE1wPU29Qz77MJni3Tu9a5Sd09H9Tv8fVRrQ8"  # Remplacez "votre_jetondacces" par votre jeton d'accès réel
 		# en production
 		# access_token = request.user.bearer_token
 		# En-têtes HTTP
@@ -274,8 +275,9 @@ class SalesInvoice(SellingController):
 
 		# Get the input data from the request
 		
-		ifu = '3201810401869'
-		denomination_entreprise = 'OWO FINANCIAL SERVICES'
+		# ifu = '3201810401869'
+		ifu = company_dgi_details.get('ifu')
+		denomination_entreprise = company_dgi_details.get('raison_sociale')
 		#ventes = vente_list.objects.filter(facture=None, agence_v=request.user)
 		paiement = {
 				'Especes': 'ESPECES',#0
@@ -288,6 +290,14 @@ class SalesInvoice(SellingController):
 				'Crédit': 'CREDIT',#0
 				'Autre': 'AUTRE'#0
 			}
+  
+		type_facture = {
+				'Facture de vente': 'FV',#0
+				"Facture de vente à l'exportation": 'EV',#18
+				"Facture d'avoir": 'FA',#0
+				"Facture d'avoir à l'exportation": 'EA',#18
+			}
+  
 		tax_groups = {
 				'Groupe A': 'A',#0
 				'Groupe B': 'B',#18
@@ -307,12 +317,12 @@ class SalesInvoice(SellingController):
 
 		# Récupérer des informations spécifiques du client
 		customer_name = self.get('customer_name')
-		customer_email = customer_details.get('custom_email')
+		# customer_email = customer_details.get('custom_email')
 		customer_ifu = customer_details.get('custom_ifu')
 		customer_telephone = customer_details.get('custom_téléphone')
 		customer_address = customer_details.get('custom_adresse_physique')
   
-		articles = self.get('items') if self.get('items') else []
+		# articles = self.get('items') if self.get('items') else []
 		for article in articles:
 			# Récupérer la quantité et le prix de l'article
 			qty= article.get('qty')
@@ -320,15 +330,17 @@ class SalesInvoice(SellingController):
 
 			# Récupérer d'autres informations de l'article
 			item_code = article.get('item_code')
-			taxes_and_charges = article.get('taxes_and_charges')
+			# taxes_and_charges = article.get('taxes_and_charges')
 
 			# Accéder à d'autres informations de l'article à partir de la base de données
 			item_details = frappe.get_doc('Item', item_code)
 			nom_article = item_details.get('item_name')
 			taxe_specifique = item_details.get('custom_taxe_spécifique')
-			item_category = item_details.get('item_group')
-			taxe = item_details.get('custom_groupe_de_taxe')
-			groupe_taxe = taxe.get('etiquette')
+			# item_category = item_details.get('item_group')
+			# taxe = item_details.get('custom_groupe_de_taxe')
+			taxe_item = frappe.get_doc('Taxe', item_details.get('custom_groupe_de_taxe'))
+			groupe_taxe = taxe_item.get('etiquette')
+			# frappe.throw('Avant groupe taxe')
     
 			item = {
 				"code": item_code,
@@ -341,11 +353,12 @@ class SalesInvoice(SellingController):
 			items.append(item)
 
 		# Create the request body
+		
 		request_data = {
-			"reference": self.get('custom_ref_originale') if self.get('custom_type_facture') == 'FA' or self.get('custom_type_facture') == 'EA' else None,
+			'reference': self.get('custom_ref_originale'),
 			'ifu': ifu,
 			'aib' : tax_groups[self.get('custom_aib')],#A ou B ou ''
-			'type': self.get('custom_type_facture'),
+			'type': type_facture[self.get('custom_type_facture')],
 			"operator": {
 					"id": "",
 					"name": denomination_entreprise
@@ -363,7 +376,7 @@ class SalesInvoice(SellingController):
 						"name": paiement[self.get('custom_moyen_de_paiement')],
 						"amount": float(self.get('grand_total'))
 					}
-				],
+				]
 		}
 
 		try:
@@ -381,17 +394,17 @@ class SalesInvoice(SellingController):
 					invoice_details = requests.get('https://developper.impots.bj/sygmef-emcf/api/invoice/' + uid, headers=headers).json()
 
 					# Finalize the invoice
-					# security_elements = requests.put('https://developper.impots.bj/sygmef-emcf/api/invoice/' + uid + '/confirm', headers=headers).json()
+					security_elements = requests.put('https://developper.impots.bj/sygmef-emcf/api/invoice/' + uid + '/confirm', headers=headers).json()
 
 					status ='succès'
 					# security_elements.update({'uid':uid})
-					return status, invoice_details, #security_elements # running...
+					return response_data, invoice_details, security_elements # running...
 					#return response_data, security_elements # details for debug
 				else:
 					#return render(request, 'facturation/test_api.html', {'response_data': response_data})
 					#return HttpResponse(f' uid: {uid}, Failed to create invoice response_data: {response_data}')
 					status = 'Failed to create invoice'+str(response_data)
-					return status, response_data #, None
+					return status, response_data , None
 
 		except requests.exceptions.RequestException as e:
 			#return HttpResponse(f'Error while creating invoice: {e}')
@@ -399,8 +412,9 @@ class SalesInvoice(SellingController):
 			return status, None
     
     
-	def sfe_availlable():
-		jeton = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjMyMDE4MTA0MDE4Njl8VFMwMTAwODE5MyIsInJvbGUiOiJUYXhwYXllciIsIm5iZiI6MTcwMzg0ODgwMSwiZXhwIjoxNzE5NjYwMDAxLCJpYXQiOjE3MDM4NDg4MDEsImlzcyI6ImltcG90cy5iaiIsImF1ZCI6ImltcG90cy5iaiJ9.EJj2fqTE1wPU29Qz77MJni3Tu9a5Sd09H9Tv8fVRrQ8'
+	def sfe_availlable(self, token):
+		jeton = token
+		# jeton = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjMyMDE4MTA0MDE4Njl8VFMwMTAwODE5MyIsInJvbGUiOiJUYXhwYXllciIsIm5iZiI6MTcwMzg0ODgwMSwiZXhwIjoxNzE5NjYwMDAxLCJpYXQiOjE3MDM4NDg4MDEsImlzcyI6ImltcG90cy5iaiIsImF1ZCI6ImltcG90cy5iaiJ9.EJj2fqTE1wPU29Qz77MJni3Tu9a5Sd09H9Tv8fVRrQ8'
         
 		url = "https://developper.impots.bj/sygmef-emcf/api/info/status"
 		access_token = jeton
@@ -418,12 +432,15 @@ class SalesInvoice(SellingController):
 				status = response_data.get("status")
 				# print(f'Status SFE : {status}')
 				return response_data.get("status")
+			elif response.status_code == 401:
+				error = f"Jéton invalide ou expiré, status code : { response.status_code }"#, http_error
+				frappe.throw(error)
 			else:
 				frappe.msgprint(f'Response status code is : { response.status_code }')
 				return None
 		except requests.exceptions.ConnectionError as conn_error:
 			error = f'Erreur de connexion, vous n\'avez pas accès à l\'Internet ou votre connexion est instable'#:{conn_error} 
-			frappe.throw(error)
+			frappe.throw(conn_error)
    
 		except json.JSONDecodeError as json_error:
 			# Gérer les erreurs de décodage JSON
@@ -455,79 +472,174 @@ class SalesInvoice(SellingController):
 			frappe.throw('Erreur de requete')
 
 
-	""" def before_submit(doc, method):
-		# Votre logique personnalisée pour before_submit ici
-		status, invoice_details, security_elements = SalesInvoice.sfe_api(doc, doc.get('items'))
-		
-		# Ajoutez des données dans les champs personnalisés, si nécessaire
-		doc.custom_status_field = status
-		doc.custom_invoice_details_field = invoice_details
-		doc.custom_security_elements_field = security_elements """
-
-
 	def before_validate(self):
-		"""status = SalesInvoice.sfe_availlable()
-		 print(f"Code running sfe, status :{status}")
+		ref = self.get('custom_codemecefdgi')
+		items = self.get('items') if self.get('items') else []
+		if ref == 'TEST-XXXX-XXXX-XXXX-XXXX-XXXX':
+			if self.get('custom_type_facture') == 'Facture de vente' or self.get('custom_type_facture') == "Facture de vente à l'exportation":
+				self.calculate_amount(items)
+				if not self.get('custom_nim').strip() or self.get('custom_nim').strip() is None:
+					sfe = frappe.get_doc('SFE', frappe.get_doc('Company', self.get('company')))
+					nim = sfe.get('nim')
+					self.set('custom_nim', nim)
+				else:
+					pass
+			else:
+				frappe.throw('Merci d`\'utiliser la facture de vente existante pour créer la facture d\'avoir.')
+		else :
+			self.set('custom_etat', 0)
+			self.calculate_amount(items)
+			if self.get('is_return'):
+				self.set('custom_ref_originale', ref)
+				type_invoice = self.get('custom_type_facture')
+				if type_invoice == 'Facture de vente':
+					type_invoice = "Facture d'avoir"  
+				elif type_invoice == 'Facture de vente à l\'exportation':
+					type_invoice = "Facture d'avoir à l'exportation"
+				else:
+					# frappe.throw('Une erreur de passage de fature de vente en avoir')
+					pass
+ 
+				self.set('custom_type_facture', type_invoice)
+			else:
+				pass
+		
+	def calculate_amount(self, articles):
+		aib = float(self.get('custom_aib'))
+		montant = 0.00
+		tax_sp = 0.0
+		montant_ht = 0.0
+		montant_ttc = 0.0
+		montant_tva = 0.0
+		montant_aib = 0.0
+		montant_total = 0.0
+  
+		for article in articles:
+			# Récupérer la quantité et le prix de l'article
+			qty= article.get('qty')
+			rate = article.get('rate')
+			item_code = article.get('item_code')
+			item_details = frappe.get_doc('Item', item_code)
+			# nom_article = item_details.get('item_name')
+			taxe_specifique = item_details.get('custom_taxe_spécifique')
+			# taxe = item_details.get('custom_groupe_de_taxe')
+			taxe_item = frappe.get_doc('Taxe', item_details.get('custom_groupe_de_taxe'))
+			taux_taxe = taxe_item.get('taux')
+   
+			tax_sp += float(taxe_specifique*qty)
+			tax_sp_i = float(taxe_specifique*qty)
+			ts_i = float(taxe_specifique*qty*1.18) if taux_taxe > 0 else float(taxe_specifique*qty) 
+			montant_i = float(qty*rate)
+			montant_ttc_i = montant_i + ts_i
+			montant_ht_i = montant_i/1.18 if taux_taxe > 0 else montant_i
+			montant_tva_i = (montant_ht_i + tax_sp_i) * 0.18 if taux_taxe > 0 else 0.00
+
+			montant_ht += montant_ht_i
+			montant_tva += montant_tva_i
+			montant_ttc += montant_ttc_i
+   
+		montant_aib = round(float(aib*(tax_sp + montant_ht)/100))
+		montant_total = round(montant_ht + montant_tva + montant_aib + tax_sp)
+		tax_sp = round(tax_sp)
+		montant_ht = round(montant_ht)
+		montant_tva = round(montant_tva)
+		montant_ttc = round(montant_ttc)
+
+		print(f'AIB : {aib}')
+		print(f'Taxe Spécifique : {tax_sp}')
+		print(f'Montant AIB : {montant_aib}')
+		print(f'Montant HT : {montant_ht}')
+		print(f'Montant TVA : {montant_tva}')
+		print(f'Montant TTC : {montant_ttc}')
+		print(f'Montant Total : {montant_total}')
+  
+		self.set('custom_montant_net_ht', montant_ht)
+		self.set('custom_montant_tva_18', montant_tva)
+		self.set('custom_montant_taxe_spécifique', tax_sp)
+		self.set('custom_montant_aib', montant_aib)
+		self.set('custom_montant__ttc', montant_total)
+		self.set('grand_total', montant_total)
+		self.set('custom_total_lettre', num2words(abs(montant_total), lang='fr'))
+
+		""" status = SalesInvoice.sfe_availlable(self,jeton)
+		print(f"Code running sfe, status :{status}")
 		frappe.msgprint(f'sfe status : {status}') """
-		if SalesInvoice.sfe_availlable() :
-			status, details = SalesInvoice.sfe_api(self)
+		""" jeton = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjMyMDE4MTA0MDE4Njl8VFMwMTAwODE5MyIsInJvbGUiOiJUYXhwYXllciIsIm5iZiI6MTcwMzg0ODgwMSwiZXhwIjoxNzE5NjYwMDAxLCJpYXQiOjE3MDM4NDg4MDEsImlzcyI6ImltcG90cy5iaiIsImF1ZCI6ImltcG90cy5iaiJ9.EJj2fqTE1wPU29Qz77MJni3Tu9a5Sd09H9Tv8fVRrQ8'
+		if SalesInvoice.sfe_availlable(self, jeton) :
+			response_data, details, security = SalesInvoice.sfe_api(self, articles, jeton)
 			frappe.msgprint(details)
 			print(details)
-    
+			print(response_data)
+			print(security) """
 
-		""" def before_submit(self):
-			# Récupérer la liste des articles
-			articles = self.get('items') if self.get('items') else []
+	def before_submit(self):
+		# sfe = frappe.get_doc('SFE', self.get('company'))
+		# sfe = frappe.get_all('SFE', filters={'societe': self.get('company')}, fields=['ifu','nim','jeton','raison_sociale'])
+		sfe_company = frappe.get_doc('SFE', {'societe': self.get('company')}, ['ifu','nim','jeton','raison_sociale'])
+		# jeton = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjMyMDE4MTA0MDE4Njl8VFMwMTAwODE5MyIsInJvbGUiOiJUYXhwYXllciIsIm5iZiI6MTcwMzg0ODgwMSwiZXhwIjoxNzE5NjYwMDAxLCJpYXQiOjE3MDM4NDg4MDEsImlzcyI6ImltcG90cy5iaiIsImF1ZCI6ImltcG90cy5iaiJ9.EJj2fqTE1wPU29Qz77MJni3Tu9a5Sd09H9Tv8fVRrQ8'
+		# Récupérer la liste des articles
+		articles = self.get('items') if self.get('items') else []
+		if SalesInvoice.sfe_availlable(self, sfe_company.get('jeton')) :
+			response_data, details, security = SalesInvoice.sfe_api(self, articles, sfe_company)
+			# print(response_data)
+			# print(security)
+   
+			codeMECeFDGI = security['codeMECeFDGI']
+			dateTime = security['dateTime']
+			qrCode = security['qrCode']
+			counters = security['counters']
+			nim = security['nim']
+			uid = response_data['uid']
+			file_path = self.generate_and_save_qr(qrCode)
 
-			if SalesInvoice.available_dgi_sfe():
-				status, details, security = SalesInvoice.sfe_api(self, articles)
+			# Mettre à jour les champs personnalisés
+			date_obj = datetime.strptime(security['dateTime'], '%d/%m/%Y %H:%M:%S')
+			date_format = date_obj.strftime('%Y-%m-%d %H:%M:%S')
 
-				codeMECeFDGI = security['codeMECeFDGI']
-				dateTime = security['dateTime']
-				qrCode = security['qrCode']
-				counters = security['counters']
-				nim = security['nim']
-				uid = security['uid']
+			self.set('custom_date_normalise', date_format)
+			self.set('custom_etat', 1)
+			self.set('custom_counters_', counters)
+			self.set('custom_uid', uid)
+			self.set('custom_codemecefdgi', codeMECeFDGI)
+			self.set('custom_qrdata', qrCode)
+			self.set('custom_qr_image', file_path)
 
-				# Générer le code QR
-				qr = qrcode.QRCode(
-					version=1,
-					error_correction=qrcode.constants.ERROR_CORRECT_L,
-					box_size=10,
-					border=4,
-				)
-				qr.add_data(qrCode)
-				qr.make(fit=True)
-				img = qr.make_image(fill_color="black", back_color="white")
+			# frappe.msgprint(f"****Les éléments de sécurité de la facture*****:\nDate et Heure: {dateTime}\nqrCode: {qrCode}\ncodeMECeFDGI: {codeMECeFDGI}\ncounters: {counters}\nnim: {nim}\nuid: {uid}")
 
-				# Convertir l'image en bytes
-				img_byte_array = BytesIO()
-				img.save(img_byte_array)
-				img_byte_array = img_byte_array.getvalue()
+	def generate_and_save_qr(self, data):
+		# Générer le code QR
+		qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=5, border=2)
+		qr.add_data(data)
+		qr.make(fit=True)
 
-				# Enregistrer l'image dans le répertoire "files" d'ERPNext
-				file_name = f"{self.name}_qr.png"
-				file_path = f"/files/{file_name}"
-				frappe.utils.upload_file(file_name, img_byte_array, self.doctype, self.name, is_private=0)
+		# Créer une image QR
+		img = qr.make_image(fill_color="black", back_color="white")
+		width, height = img.size
+		new_size = (int(width * 0.4), int(height * 0.4))
+		img = img.resize(new_size)
 
-				# Mettre à jour les champs personnalisés
-				date_obj = datetime.strptime(security['dateTime'], '%d/%m/%Y %H:%M:%S')
-				date_format = date_obj.strftime('%Y-%m-%d %H:%M:%S')
+		# Obtenez le chemin du site ERPNext
+		site_path = get_site_path()
 
-				self.set('custom_date_normalise', date_format)
-				self.set('custom_etat', 1)
-				self.set('custom_counters_', counters)
-				self.set('custom_uid', uid)
-				self.set('custom_codemecefdgi', codeMECeFDGI)
-				self.set('custom_qrdata', qrCode)
-				self.set('custom_qrimage', file_path)
+		# Définissez le chemin complet pour le répertoire "files/qr"
+		qr_directory = os.path.join(site_path, "public", "files", "qr")
 
-				frappe.msgprint(f"****Les éléments de sécurité de la facture*****:\nDate et Heure: {dateTime}\nqrCode: {qrCode}\ncodeMECeFDGI: {codeMECeFDGI}\ncounters: {counters}\nnim: {nim}\nuid: {uid}") """
+		# Assurez-vous que le répertoire existe, sinon, créez-le
+		if not os.path.exists(qr_directory):
+			os.makedirs(qr_directory)
 
-    
-    
-    
-    
+		# Définissez le chemin complet pour le fichier QR
+		# qr_filename = f"{filename}_qr.png"
+		qr_filename = f"{self.name}_qr.png"
+		qr_filepath = os.path.join(qr_directory, qr_filename)
+
+		# Enregistrez l'image QR dans le fichier
+		img.save(qr_filepath)
+
+		# Retournez le chemin relatif du fichier QR
+		return f"/files/qr/{qr_filename}"
+
+
     
     
     

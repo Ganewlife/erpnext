@@ -2,29 +2,117 @@
 
 {% block title %} {{ title }} {% endblock %}
 
-{% block header %}<h2>{{ title }}</h2>{% endblock %}
+{% block header %}<h2>{{ title }} {% if selected_partner != "all" %} {{ selected_partner }} {% endif %}{% if selected_region != "all" %} De {{ selected_region }} {% endif %}</h2>{% endblock %}
 
 {% block page_content %}
-<div class="partners-content">
-	{% for partner_info in partners %}
-	<div class="row">
-		<div class="col-md-3">
-			{% if partner_info.logo -%}
-			<a href="{{ partner_info.route }}">
-				<img itemprop="brand" src="{{ partner_info.logo }}" class="partner-logo"
-					alt="{{ partner_info.partner_name }}" title="{{ partner_info.partner_name }}" />
-			</a>
-			{%- endif %}
-		</div>
-		<div class="col-md-9">
-			<a href="{{ partner_info.route }}">
-				<h4>{{ partner_info.partner_name }}</h4>
-			</a>
-			<p style="color: #999">{{ partner_info.territory }} - {{ partner_info.partner_type }}</p>
-			<p>{{ partner_info.introduction }}</p>
-		</div>
+
+
+<div class="row mb-5">
+	<div class="col-md-4"></div>
+
+<div class="col-md-4 align-self-end">
+			<label for="territory-select" class="sr-only">Filtrer par type de partenaire</label>
+			<select id="partner-select" class="custom-select" onchange="redirectOnChangePartner(this, event)">
+					<option value="" selected="">
+							Filtrer par type de partenaire
+					</option>
+					{% for info in sales %}
+					<option value="{{  info.name }}" {% if selected_partner == info.name %}selected{% endif %}>
+							{{ info.name }}
+					</option>
+					{% endfor %}
+					<option value="all" {% if selected_partner == "all" %}selected{% endif %}>Tout</option>
+			</select>
 	</div>
-	<hr>
-	{% endfor %}
+
+	<div class="col-md-4 align-self-end">
+			<label for="territory-select" class="sr-only">Filtrer par région</label>
+			<select id="territory-select" class="custom-select" onchange="redirectOnChange(this, event)">
+					<option value="" selected="">
+							Filtrer par région
+					</option>
+					{% for territory_info in territory %}
+					<option value="{{ territory_info.territory_name }}" {% if selected_region == territory_info.territory_name %}selected{% endif %} > {{ territory_info.territory_name }} </option>
+					{% endfor %}
+					<option value="all" {% if selected_region == "all" %}selected{% endif %}>Tout</option>
+			</select>
+	</div>
 </div>
+
+<div class="partners-content">
+	<div class="blog-list-content">
+	<div id="blog-list" class="row result blog-list">
+	{% for partner_info in partners %}
+			<div class="blog-card col-sm-12 col-md-4">
+			<div class="card h-100">
+			<div class="card-img-top">
+					{% if partner_info.logo -%}
+					<a href="{{ partner_info.route }}">
+							<img itemprop="brand" src="{{ partner_info.logo }}" class="partner-logo"
+									alt="{{ partner_info.partner_name }}" title="{{ partner_info.partner_name }}" />                        </a>
+					{%- endif %}
+			</div>
+			<div class="card-body">
+					<a href="{{ partner_info.route }}">
+							<h4>{{ partner_info.partner_name }} </h4>
+					</a>
+					<p style="color: #999">{{ partner_info.territory }} - {{ partner_info.partner_type }}</p>
+					<p>{{ partner_info.email }} - {{ partner_info.téléphone }}</p><br>
+					<a href="{{ partner_info.localisation_google_ }}" target = "_blank"> Localisation Google </a>
+			</div>
+	</div>
+	</div>
+	{% endfor %}
+	</div>
+	</div>
+</div>
+
+
+<script>
+	function redirectOnChange(selectElement, event) {
+			event.preventDefault();
+
+			var urlParams = new URLSearchParams(window.location.search);
+			var selectedPartner = urlParams.get('selected_partner');
+			var partnerValue = "all"
+			if (selectedPartner) {
+					partnerValue = selectedPartner
+			}
+
+			var selectedValue = selectElement.value;
+			//console.log(selectedValue);
+			if (selectedValue) {
+			//var timestamp = new Date().getTime();
+			// Vous pouvez également ajouter la logique pour construire l'URL en fonction de la valeur sélectionnée
+			var url = "{{ frappe.utils.get_url('/partners') }}?selected_region=" + encodeURIComponent(selectedValue);
+
+			url += "&selected_partner=" + encodeURIComponent(partnerValue);
+			// Rediriger vers la nouvelle URL
+			window.location.href = url;
+			console.log("Redirecting to:", url);
+		}
+	}
+
+	function redirectOnChangePartner(selectPartner, event) {
+			event.preventDefault();
+
+			var urlParams = new URLSearchParams(window.location.search);
+			var selectedRegion = urlParams.get('selected_region');
+			var regionValue = "all"
+			if (selectedRegion) {
+					regionValue = selectedRegion;
+			}
+
+			var partnerValue = selectPartner.value;
+			if (partnerValue) {
+			var url = "{{ frappe.utils.get_url('/partners') }}?selected_partner=" + encodeURIComponent(partnerValue);
+
+			url += "&selected_region=" + encodeURIComponent(regionValue);
+			// Rediriger vers la nouvelle URL
+			window.location.href = url;
+			console.log("Redirecting to:", url);
+		}
+	}
+</script>
+
 {% endblock %}
