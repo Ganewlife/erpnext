@@ -1401,8 +1401,8 @@ def create_purchase_receipt_entries_for_batchwise_item_valuation_test(pr_entry_l
 
 
 def create_delivery_note_entries_for_batchwise_item_valuation_test(dn_entry_list):
-	from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note
-	from erpnext.selling.doctype.sales_order.test_sales_order import make_sales_order
+	from erpnext.selling_old.doctype.sales_order.sales_order import make_delivery_note
+	from erpnext.selling_old.doctype.sales_order.test_sales_order import make_sales_order
 
 	dns = []
 	for item, warehouse, batch_no, qty, rate in dn_entry_list:

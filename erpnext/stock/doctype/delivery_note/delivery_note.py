@@ -30,7 +30,7 @@ class DeliveryNote(SellingController):
 		from erpnext.accounts.doctype.sales_taxes_and_charges.sales_taxes_and_charges import (
 			SalesTaxesandCharges,
 		)
-		from erpnext.selling.doctype.sales_team.sales_team import SalesTeam
+		from erpnext.selling_old.doctype.sales_team.sales_team import SalesTeam
 		from erpnext.stock.doctype.delivery_note_item.delivery_note_item import DeliveryNoteItem
 		from erpnext.stock.doctype.packed_item.packed_item import PackedItem
 
@@ -616,7 +616,7 @@ class DeliveryNote(SellingController):
 					frappe.throw(msg, title=_("Stock Reservation Warehouse Mismatch"))
 
 	def check_credit_limit(self):
-		from erpnext.selling.doctype.customer.customer import check_credit_limit
+		from erpnext.selling_old.doctype.customer.customer import check_credit_limit
 
 		if self.per_billed == 100:
 			return

@@ -210,7 +210,7 @@ class PaymentRequest(Document):
 	def make_invoice(self):
 		ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
 		if hasattr(ref_doc, "order_type") and getattr(ref_doc, "order_type") == "Shopping Cart":
-			from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
+			from erpnext.selling_old.doctype.sales_order.sales_order import make_sales_invoice
 
 			si = make_sales_invoice(self.reference_name, ignore_permissions=True)
 			si.allocate_advances_automatically = True

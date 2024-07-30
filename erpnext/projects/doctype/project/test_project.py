@@ -7,8 +7,8 @@ from frappe.utils import add_days, getdate, nowdate
 
 from erpnext.projects.doctype.project_template.test_project_template import make_project_template
 from erpnext.projects.doctype.task.test_task import create_task
-from erpnext.selling.doctype.sales_order.sales_order import make_project as make_project_from_so
-from erpnext.selling.doctype.sales_order.test_sales_order import make_sales_order
+from erpnext.selling_old.doctype.sales_order.sales_order import make_project as make_project_from_so
+from erpnext.selling_old.doctype.sales_order.test_sales_order import make_sales_order
 
 test_records = frappe.get_test_records("Project")
 test_ignore = ["Sales Order"]

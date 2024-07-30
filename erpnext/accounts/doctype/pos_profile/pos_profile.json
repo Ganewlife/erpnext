@@ -400,9 +400,14 @@
    "group": "Opening & Closing",
    "link_doctype": "POS Closing Entry",
    "link_fieldname": "pos_profile"
+  },
+  {
+   "group": "Opening & Closing",
+   "link_doctype": "Medication Request",
+   "link_fieldname": "medication_item"
   }
  ],
- "modified": "2022-08-10 12:57:06.241439",
+ "modified": "2024-07-17 17:29:00.891585",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Profile",

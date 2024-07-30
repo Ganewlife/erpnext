@@ -25,25 +25,16 @@ class POSInvoice(SalesInvoice):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
-		from frappe.types import DF
-
 		from erpnext.accounts.doctype.payment_schedule.payment_schedule import PaymentSchedule
 		from erpnext.accounts.doctype.pos_invoice_item.pos_invoice_item import POSInvoiceItem
 		from erpnext.accounts.doctype.pricing_rule_detail.pricing_rule_detail import PricingRuleDetail
-		from erpnext.accounts.doctype.sales_invoice_advance.sales_invoice_advance import (
-			SalesInvoiceAdvance,
-		)
-		from erpnext.accounts.doctype.sales_invoice_payment.sales_invoice_payment import (
-			SalesInvoicePayment,
-		)
-		from erpnext.accounts.doctype.sales_invoice_timesheet.sales_invoice_timesheet import (
-			SalesInvoiceTimesheet,
-		)
-		from erpnext.accounts.doctype.sales_taxes_and_charges.sales_taxes_and_charges import (
-			SalesTaxesandCharges,
-		)
+		from erpnext.accounts.doctype.sales_invoice_advance.sales_invoice_advance import SalesInvoiceAdvance
+		from erpnext.accounts.doctype.sales_invoice_payment.sales_invoice_payment import SalesInvoicePayment
+		from erpnext.accounts.doctype.sales_invoice_timesheet.sales_invoice_timesheet import SalesInvoiceTimesheet
+		from erpnext.accounts.doctype.sales_taxes_and_charges.sales_taxes_and_charges import SalesTaxesandCharges
 		from erpnext.selling.doctype.sales_team.sales_team import SalesTeam
 		from erpnext.stock.doctype.packed_item.packed_item import PackedItem
+		from frappe.types import DF
 
 		account_for_change_amount: DF.Link | None
 		additional_discount_percentage: DF.Float
@@ -142,20 +133,7 @@ class POSInvoice(SalesInvoice):
 		shipping_address_name: DF.Link | None
 		shipping_rule: DF.Link | None
 		source: DF.Link | None
-		status: DF.Literal[
-			"",
-			"Draft",
-			"Return",
-			"Credit Note Issued",
-			"Consolidated",
-			"Submitted",
-			"Paid",
-			"Unpaid",
-			"Unpaid and Discounted",
-			"Overdue and Discounted",
-			"Overdue",
-			"Cancelled",
-		]
+		status: DF.Literal["", "Draft", "Return", "Credit Note Issued", "Consolidated", "Submitted", "Paid", "Unpaid", "Unpaid and Discounted", "Overdue and Discounted", "Overdue", "Cancelled"]
 		tax_category: DF.Link | None
 		tax_id: DF.Data | None
 		taxes: DF.Table[SalesTaxesandCharges]
@@ -168,6 +146,8 @@ class POSInvoice(SalesInvoice):
 		to_date: DF.Date | None
 		total: DF.Currency
 		total_advance: DF.Currency
+		total_assureur: DF.Currency
+		total_assuré: DF.Currency
 		total_billing_amount: DF.Currency
 		total_commission: DF.Currency
 		total_net_weight: DF.Float
@@ -608,6 +588,33 @@ class POSInvoice(SalesInvoice):
 			)
 
 		return profile
+
+	def on_update(self):
+		if self.status == "Paid":
+			patient_name = self.customer_name
+			total_assureur = self.total_assureur
+
+			# Récupérer le patient correspondant
+			patient = frappe.get_doc("Patient", {"patient_name": patient_name})
+
+			if patient:
+				# Calculer le nouveau montant consommé
+				frappe.msgprint(f"Consommation :{patient.montant_consomme}")
+				frappe.msgprint(f"Total assureur :{total_assureur}")
+				nouveau_montant_consomme = float(float(patient.montant_consomme) + float(total_assureur))
+
+				# Vérifier si le nouveau montant consommé dépasse le plafond de couverture
+				if nouveau_montant_consomme >= float(patient.plafond_de_couverture):
+					nouveau_montant_consomme = patient.plafond_de_couverture
+					frappe.throw(f"Le montant consommé atteint le plafond de couverture pour le patient {patient_name}.")
+
+				# Mettre à jour le champ montant_consomme du patient
+				patient.montant_consomme = nouveau_montant_consomme
+				# patient.set('montant_consomme', nouveau_montant_consomme)
+
+				patient.save(ignore_permissions=True)
+			else:
+				frappe.msgprint("Patient non trouvé")
 
 	@frappe.whitelist()
 	def set_missing_values(self, for_validate=False):

@@ -7,7 +7,7 @@ import unittest
 import frappe
 
 from erpnext.accounts.doctype.sales_invoice.test_sales_invoice import create_sales_invoice
-from erpnext.selling.doctype.sales_order.test_sales_order import make_sales_order
+from erpnext.selling_old.doctype.sales_order.test_sales_order import make_sales_order
 from erpnext.stock.doctype.item.test_item import make_item
 from erpnext.stock.get_item_details import get_item_details
 

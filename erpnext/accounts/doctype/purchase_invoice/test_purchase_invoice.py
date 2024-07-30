@@ -1808,7 +1808,7 @@ class TestPurchaseInvoice(FrappeTestCase, StockTestMixin):
 			create_pr_against_po,
 			create_purchase_order,
 		)
-		from erpnext.selling.doctype.sales_order.test_sales_order import (
+		from erpnext.selling_old.doctype.sales_order.test_sales_order import (
 			automatically_fetch_payment_terms,
 		)
 		from erpnext.stock.doctype.purchase_receipt.purchase_receipt import (

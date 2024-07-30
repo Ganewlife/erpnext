@@ -7,8 +7,8 @@ import frappe
 from frappe.tests.utils import FrappeTestCase, change_settings
 from frappe.utils import add_to_date, nowdate
 
-from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note
-from erpnext.selling.doctype.sales_order.test_sales_order import make_sales_order
+from erpnext.selling_old.doctype.sales_order.sales_order import make_delivery_note
+from erpnext.selling_old.doctype.sales_order.test_sales_order import make_sales_order
 from erpnext.stock.doctype.item.test_item import make_item
 from erpnext.stock.doctype.purchase_receipt.test_purchase_receipt import get_gl_entries
 from erpnext.stock.doctype.stock_entry.stock_entry_utils import make_stock_entry

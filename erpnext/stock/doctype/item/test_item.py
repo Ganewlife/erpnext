@@ -477,7 +477,7 @@ class TestItem(FrappeTestCase):
 		)
 
 	def test_item_merging_with_product_bundle(self):
-		from erpnext.selling.doctype.product_bundle.test_product_bundle import make_product_bundle
+		from erpnext.selling_old.doctype.product_bundle.test_product_bundle import make_product_bundle
 
 		create_item("Test Item Bundle Item 1", is_stock_item=False)
 		create_item("Test Item Bundle Item 2", is_stock_item=False)

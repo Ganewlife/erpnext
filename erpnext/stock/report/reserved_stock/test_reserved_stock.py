@@ -6,7 +6,7 @@ import frappe
 from frappe.tests.utils import FrappeTestCase, change_settings
 from frappe.utils.data import today
 
-from erpnext.selling.doctype.sales_order.test_sales_order import make_sales_order
+from erpnext.selling_old.doctype.sales_order.test_sales_order import make_sales_order
 from erpnext.stock.doctype.stock_reservation_entry.test_stock_reservation_entry import (
 	cancel_all_stock_reservation_entries,
 	create_items,

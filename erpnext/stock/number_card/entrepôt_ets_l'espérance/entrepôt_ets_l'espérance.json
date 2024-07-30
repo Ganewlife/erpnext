@@ -1,0 +1,22 @@
+{
+ "creation": "2024-06-25 18:22:41.018768",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "filters_json": "{\"company\":\"Owo Financial Services\",\"from_date\":\"2024-05-25\",\"to_date\":\"2024-06-25\",\"warehouse\":\"Ets l'Esp\u00e9rance - OFS\",\"valuation_field_type\":\"Currency\"}",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "label": "Entrep\u00f4t Ets L'Esp\u00e9rance",
+ "modified": "2024-06-25 18:22:41.270759",
+ "modified_by": "olade.affoyon@ofs.bj",
+ "module": "Stock",
+ "name": "Entrep\u00f4t Ets L'Esp\u00e9rance",
+ "owner": "olade.affoyon@ofs.bj",
+ "report_field": "bal_qty",
+ "report_function": "Sum",
+ "report_name": "Stock Balance",
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Daily",
+ "type": "Report"
+}

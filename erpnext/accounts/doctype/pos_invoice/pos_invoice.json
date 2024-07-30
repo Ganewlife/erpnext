@@ -78,6 +78,8 @@
   "total",
   "net_total",
   "total_net_weight",
+  "total_assur\u00e9",
+  "total_assureur",
   "taxes_section",
   "taxes_and_charges",
   "column_break_38",
@@ -711,6 +713,7 @@
    "fieldtype": "Currency",
    "label": "Net Total",
    "options": "currency",
+   "precision": "0",
    "print_hide": 1,
    "read_only": 1
   },
@@ -1558,12 +1561,26 @@
    "fieldname": "update_billed_amount_in_delivery_note",
    "fieldtype": "Check",
    "label": "Update Billed Amount in Delivery Note"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_assur\u00e9",
+   "fieldtype": "Currency",
+   "label": "Total part assur\u00e9",
+   "non_negative": 1,
+   "precision": "0"
+  },
+  {
+   "fieldname": "total_assureur",
+   "fieldtype": "Currency",
+   "label": "Total part assureur",
+   "precision": "0"
   }
  ],
  "icon": "fa fa-file-text",
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-20 12:27:12.848149",
+ "modified": "2024-07-05 16:48:04.945471",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Invoice",

@@ -361,7 +361,7 @@ class WorkOrder(Document):
 			self.db_set(fieldname, qty)
 			self.set_process_loss_qty()
 
-			from erpnext.selling.doctype.sales_order.sales_order import update_produced_qty_in_so_item
+			from erpnext.selling_old.doctype.sales_order.sales_order import update_produced_qty_in_so_item
 
 			if self.sales_order and self.sales_order_item:
 				update_produced_qty_in_so_item(self.sales_order, self.sales_order_item)

@@ -58,7 +58,7 @@ class TestGrossProfit(FrappeTestCase):
 		self.item = item if isinstance(item, str) else item.item_code
 
 	def create_bundle(self):
-		from erpnext.selling.doctype.product_bundle.test_product_bundle import make_product_bundle
+		from erpnext.selling_old.doctype.product_bundle.test_product_bundle import make_product_bundle
 
 		item2 = create_item(
 			item_code="_Test GP Item 2", is_stock_item=1, company=self.company, warehouse=self.warehouse
@@ -304,7 +304,7 @@ class TestGrossProfit(FrappeTestCase):
 		self.assertGreater(len(data), 0)
 
 	def test_order_connected_dn_and_inv(self):
-		from erpnext.selling.doctype.sales_order.test_sales_order import make_sales_order
+		from erpnext.selling_old.doctype.sales_order.test_sales_order import make_sales_order
 
 		"""
 			Test gp calculation when invoice and delivery note aren't directly connected.
@@ -349,7 +349,7 @@ class TestGrossProfit(FrappeTestCase):
 			do_not_submit=False,
 		)
 
-		from erpnext.selling.doctype.sales_order.sales_order import (
+		from erpnext.selling_old.doctype.sales_order.sales_order import (
 			make_delivery_note,
 			make_sales_invoice,
 		)

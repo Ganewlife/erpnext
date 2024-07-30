@@ -20,7 +20,7 @@ from erpnext.manufacturing.doctype.work_order.work_order import (
 	make_stock_return_entry,
 	stop_unstop,
 )
-from erpnext.selling.doctype.sales_order.test_sales_order import make_sales_order
+from erpnext.selling_old.doctype.sales_order.test_sales_order import make_sales_order
 from erpnext.stock.doctype.item.test_item import create_item, make_item
 from erpnext.stock.doctype.serial_and_batch_bundle.test_serial_and_batch_bundle import (
 	get_batch_from_bundle,

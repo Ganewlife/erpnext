@@ -527,7 +527,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		self.assertRaises(frappe.ValidationError, pi.submit)
 
 	def test_make_purchase_invoice_with_terms(self):
-		from erpnext.selling.doctype.sales_order.test_sales_order import (
+		from erpnext.selling_old.doctype.sales_order.test_sales_order import (
 			automatically_fetch_payment_terms,
 		)
 
@@ -843,7 +843,7 @@ class TestPurchaseOrder(FrappeTestCase):
 			create_payment_terms_template,
 		)
 		from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
-		from erpnext.selling.doctype.sales_order.test_sales_order import (
+		from erpnext.selling_old.doctype.sales_order.test_sales_order import (
 			automatically_fetch_payment_terms,
 			compare_payment_schedules,
 		)
@@ -869,7 +869,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		from erpnext.accounts.doctype.sales_invoice.sales_invoice import (
 			make_inter_company_purchase_invoice,
 		)
-		from erpnext.selling.doctype.sales_order.sales_order import (
+		from erpnext.selling_old.doctype.sales_order.sales_order import (
 			make_delivery_note,
 			make_sales_invoice,
 		)
@@ -1040,7 +1040,7 @@ class TestPurchaseOrder(FrappeTestCase):
 
 def prepare_data_for_internal_transfer():
 	from erpnext.accounts.doctype.sales_invoice.test_sales_invoice import create_internal_supplier
-	from erpnext.selling.doctype.customer.test_customer import create_internal_customer
+	from erpnext.selling_old.doctype.customer.test_customer import create_internal_customer
 	from erpnext.stock.doctype.purchase_receipt.test_purchase_receipt import make_purchase_receipt
 	from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
 

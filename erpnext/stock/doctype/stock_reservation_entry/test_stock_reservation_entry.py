@@ -7,8 +7,8 @@ import frappe
 from frappe.tests.utils import FrappeTestCase, change_settings
 from frappe.utils import today
 
-from erpnext.selling.doctype.sales_order.sales_order import create_pick_list, make_delivery_note
-from erpnext.selling.doctype.sales_order.test_sales_order import make_sales_order
+from erpnext.selling_old.doctype.sales_order.sales_order import create_pick_list, make_delivery_note
+from erpnext.selling_old.doctype.sales_order.test_sales_order import make_sales_order
 from erpnext.stock.doctype.item.test_item import make_item
 from erpnext.stock.doctype.stock_entry.stock_entry import StockEntry
 from erpnext.stock.doctype.stock_entry.test_stock_entry import make_stock_entry
@@ -578,7 +578,7 @@ class TestStockReservationEntry(FrappeTestCase):
 	)
 	def test_stock_reservation_from_purchase_receipt(self) -> None:
 		from erpnext.buying.doctype.purchase_order.purchase_order import make_purchase_receipt
-		from erpnext.selling.doctype.sales_order.sales_order import make_material_request
+		from erpnext.selling_old.doctype.sales_order.sales_order import make_material_request
 		from erpnext.stock.doctype.material_request.material_request import make_purchase_order
 
 		items_details = create_items()

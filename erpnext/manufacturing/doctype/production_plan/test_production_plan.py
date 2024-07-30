@@ -13,8 +13,8 @@ from erpnext.manufacturing.doctype.production_plan.production_plan import (
 )
 from erpnext.manufacturing.doctype.work_order.work_order import OverProductionError
 from erpnext.manufacturing.doctype.work_order.work_order import make_stock_entry as make_se_from_wo
-from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note
-from erpnext.selling.doctype.sales_order.test_sales_order import make_sales_order
+from erpnext.selling_old.doctype.sales_order.sales_order import make_delivery_note
+from erpnext.selling_old.doctype.sales_order.test_sales_order import make_sales_order
 from erpnext.stock.doctype.item.test_item import create_item, make_item
 from erpnext.stock.doctype.stock_entry.test_stock_entry import make_stock_entry
 from erpnext.stock.doctype.stock_reconciliation.test_stock_reconciliation import (

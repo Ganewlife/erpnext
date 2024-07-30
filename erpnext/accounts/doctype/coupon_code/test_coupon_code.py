@@ -5,7 +5,7 @@ import unittest
 
 import frappe
 
-from erpnext.selling.doctype.sales_order.test_sales_order import make_sales_order
+from erpnext.selling_old.doctype.sales_order.test_sales_order import make_sales_order
 
 test_dependencies = ["Item"]
 

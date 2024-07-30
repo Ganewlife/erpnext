@@ -897,7 +897,7 @@ def create_stock_reservation_entries_for_so_items(
 ) -> None:
 	"""Creates Stock Reservation Entries for Sales Order Items."""
 
-	from erpnext.selling.doctype.sales_order.sales_order import get_unreserved_qty
+	from erpnext.selling_old.doctype.sales_order.sales_order import get_unreserved_qty
 
 	if not from_voucher_type and (
 		sales_order.get("_action") == "submit"

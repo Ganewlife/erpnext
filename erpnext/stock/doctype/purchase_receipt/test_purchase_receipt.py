@@ -1176,7 +1176,7 @@ class TestPurchaseReceipt(FrappeTestCase):
 			create_purchase_order,
 			make_pr_against_po,
 		)
-		from erpnext.selling.doctype.sales_order.test_sales_order import (
+		from erpnext.selling_old.doctype.sales_order.test_sales_order import (
 			automatically_fetch_payment_terms,
 			compare_payment_schedules,
 		)
@@ -2283,7 +2283,7 @@ class TestPurchaseReceipt(FrappeTestCase):
 
 def prepare_data_for_internal_transfer():
 	from erpnext.accounts.doctype.sales_invoice.test_sales_invoice import create_internal_supplier
-	from erpnext.selling.doctype.customer.test_customer import create_internal_customer
+	from erpnext.selling_old.doctype.customer.test_customer import create_internal_customer
 
 	company = "_Test Company with perpetual inventory"
 

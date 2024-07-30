@@ -31,6 +31,8 @@ class POSInvoiceItem(Document):
 		brand: DF.Data | None
 		conversion_factor: DF.Float
 		cost_center: DF.Link
+		custom_part_assureur: DF.Currency
+		custom_part_assuré: DF.Currency
 		customer_item_code: DF.Data | None
 		deferred_revenue_account: DF.Link | None
 		delivered_by_supplier: DF.Check

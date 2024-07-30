@@ -21,7 +21,7 @@ class TestJournalEntry(unittest.TestCase):
 		self.jv_against_voucher_testcase(base_jv, jv_invoice)
 
 	def test_jv_against_sales_order(self):
-		from erpnext.selling.doctype.sales_order.test_sales_order import make_sales_order
+		from erpnext.selling_old.doctype.sales_order.test_sales_order import make_sales_order
 
 		sales_order = make_sales_order(do_not_save=True)
 		base_jv = frappe.copy_doc(test_records[0])

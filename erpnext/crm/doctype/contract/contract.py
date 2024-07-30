@@ -45,7 +45,7 @@ class Contract(Document):
 		status: DF.Literal["Unsigned", "Active", "Inactive"]
 	# end: auto-generated types
 
-	def autoname(self):
+	"""def autoname(self):
 		name = self.party_name
 
 		if self.contract_template:
@@ -56,7 +56,23 @@ class Contract(Document):
 			count = len(frappe.get_all("Contract", filters={"name": ["like", "%{}%".format(name)]}))
 			name = "{} - {}".format(name, count)
 
-		self.name = _(name)
+		self.name = _(name)"""
+	def autoname(self):
+	    base_name = "CONT-DIST-"
+	    start_number = 176
+	    count = frappe.get_all("Contract", filters={"name": ["like", base_name + "%"]})
+	    count = len(count) + start_number
+
+	    while True:
+	        name = base_name + "{:05d}".format(count)
+	        if not frappe.db.exists("Contract", name):
+	            break
+	        count += 1
+
+	    self.name = name
+
+
+
 
 	def validate(self):
 		self.validate_dates()

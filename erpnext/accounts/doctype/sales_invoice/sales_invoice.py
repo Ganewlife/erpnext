@@ -311,6 +311,9 @@ class SalesInvoice(SellingController):
 				'3': ''#0 En attente de validation de l'API DGI
 			}
 			#calcul_taxe_sejour
+		invoice_aib= '0' if self.get('custom_aib') is None else str(self.get('custom_aib'))
+		print(invoice_aib)
+		print(tax_groups[invoice_aib])
 		items = []
 		customer = self.get('customer')
 		customer_details = frappe.get_doc('Customer', customer)
@@ -357,7 +360,7 @@ class SalesInvoice(SellingController):
 		request_data = {
 			'reference': self.get('custom_ref_originale'),
 			'ifu': ifu,
-			'aib' : tax_groups[self.get('custom_aib')],#A ou B ou ''
+			'aib' : str(tax_groups[invoice_aib]),#A ou B ou ''
 			'type': type_facture[self.get('custom_type_facture')],
 			"operator": {
 					"id": "",
@@ -473,12 +476,16 @@ class SalesInvoice(SellingController):
 
 
 	def before_validate(self):
+		if not self.is_pos:# s'il ne s'agit pas d'un point de vente
+			self.save_like_dgi(self)
+   
+	def save_like_dgi(self):
 		ref = self.get('custom_codemecefdgi')
 		items = self.get('items') if self.get('items') else []
 		if ref == 'TEST-XXXX-XXXX-XXXX-XXXX-XXXX':
 			if self.get('custom_type_facture') == 'Facture de vente' or self.get('custom_type_facture') == "Facture de vente à l'exportation":
 				self.calculate_amount(items)
-				if not self.get('custom_nim').strip() or self.get('custom_nim').strip() is None:
+				if not self.get('custom_nim') or self.get('custom_nim') is None or self.get('custom_nim').strip() is None or self.get('custom_nim') == 'Null' :
 					sfe = frappe.get_doc('SFE', frappe.get_doc('Company', self.get('company')))
 					nim = sfe.get('nim')
 					self.set('custom_nim', nim)
@@ -505,7 +512,8 @@ class SalesInvoice(SellingController):
 				pass
 		
 	def calculate_amount(self, articles):
-		aib = float(self.get('custom_aib'))
+		# aib = float(self.get('custom_aib'))
+		aib = 0 if self.get('custom_aib') is None else float(self.get('custom_aib'))
 		montant = 0.00
 		tax_sp = 0.0
 		montant_ht = 0.0
@@ -571,8 +579,13 @@ class SalesInvoice(SellingController):
 			print(details)
 			print(response_data)
 			print(security) """
-
+		
+		
 	def before_submit(self):
+		if not self.is_pos:# s'il ne s'agit pas d'un point de vente
+			self.validate_and_submit_on_dgi_db(self)
+   
+	def validate_and_submit_on_dgi_db(self):
 		# sfe = frappe.get_doc('SFE', self.get('company'))
 		# sfe = frappe.get_all('SFE', filters={'societe': self.get('company')}, fields=['ifu','nim','jeton','raison_sociale'])
 		sfe_company = frappe.get_doc('SFE', {'societe': self.get('company')}, ['ifu','nim','jeton','raison_sociale'])
@@ -638,6 +651,170 @@ class SalesInvoice(SellingController):
 
 		# Retournez le chemin relatif du fichier QR
 		return f"/files/qr/{qr_filename}"
+
+
+
+
+
+
+
+
+	##########################################################################################################################################
+	def debug(self):
+		# Set up the headers with your API key
+		# test
+		# access_token = company_dgi_details.get('custom_jeton')
+		access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjMyMDE4MTA0MDE4Njl8VFMwMTAwODE5MyIsInJvbGUiOiJUYXhwYXllciIsIm5iZiI6MTcwMzg0ODgwMSwiZXhwIjoxNzE5NjYwMDAxLCJpYXQiOjE3MDM4NDg4MDEsImlzcyI6ImltcG90cy5iaiIsImF1ZCI6ImltcG90cy5iaiJ9.EJj2fqTE1wPU29Qz77MJni3Tu9a5Sd09H9Tv8fVRrQ8"  # Remplacez "votre_jetondacces" par votre jeton d'accès réel
+		# en production
+		# access_token = request.user.bearer_token
+		# En-têtes HTTP
+		headers = {
+			"Authorization": f"Bearer {access_token}",
+			"Content-Type": "application/json"
+		}
+
+		# Get the input data from the request
+		
+		ifu = '3201810401869'
+		# ifu = company_dgi_details.get('custom_ifu')
+		denomination_entreprise = 'OWO FINANCIAL SERVICES'
+		# denomination_entreprise = company_dgi_details.get('custom_raison_sociale')
+		paiement = {
+				'Especes': 'ESPECES',#0
+				'Virement': 'VIREMENT',#18
+				'Carte': 'CARTEBANCAIRE',#0
+				'Chèques': 'CHEQUES',#18
+				'MTN Mobile Money': 'MOBILEMONEY',#0
+				'Moov Money': 'MOBILEMONEY',#0
+				'CeltisCash':'MOBILEMONEY',#0
+				'Crédit': 'CREDIT',#0
+				'Autre': 'AUTRE'#0
+			}
+  
+		type_facture = {
+				'Facture de vente': 'FV',#0
+				"Facture de vente à l'exportation": 'EV',#18
+				"Facture d'avoir": 'FA',#0
+				"Facture d'avoir à l'exportation": 'EA',#18
+			}
+  
+		tax_groups = {
+				'Groupe A': 'A',#0
+				'Groupe B': 'B',#18
+				'Groupe C': 'C',#0
+				'Groupe D': 'D',#18
+				'Groupe E': 'E',#0
+				'Groupe F': 'F',#0
+				'0': '',#0
+				'1': 'A',#0
+				'5': 'B',#0
+				'3': ''#0 En attente de validation de l'API DGI
+			}
+			#calcul_taxe_sejour
+		items = []
+		customer = self.get('customer')
+		customer_details = frappe.get_doc('Customer', customer)
+
+		# Récupérer des informations spécifiques du client
+		customer_name = self.get('customer_name')
+		# customer_email = customer_details.get('custom_email')
+		customer_ifu = customer_details.get('custom_ifu')
+		customer_telephone = customer_details.get('custom_téléphone')
+		customer_address = customer_details.get('custom_adresse_physique')
+  
+		# articles = self.get('items') if self.get('items') else []
+		""" for article in articles:
+			# Récupérer la quantité et le prix de l'article
+			qty= article.get('qty')
+			rate = article.get('rate')
+
+			# Récupérer d'autres informations de l'article
+			item_code = article.get('item_code')
+			# taxes_and_charges = article.get('taxes_and_charges')
+
+			# Accéder à d'autres informations de l'article à partir de la base de données
+			item_details = frappe.get_doc('Item', item_code)
+			nom_article = item_details.get('item_name')
+			taxe_specifique = item_details.get('custom_taxe_spécifique')
+			# item_category = item_details.get('item_group')
+			# taxe = item_details.get('custom_groupe_de_taxe')
+			taxe_item = frappe.get_doc('Taxe', item_details.get('custom_groupe_de_taxe'))
+			groupe_taxe = taxe_item.get('etiquette')
+			# frappe.throw('Avant groupe taxe') """
+    
+		item = {
+			"code": 'codebh',
+			"name": 'Carte Hight B',
+			"price": 9500,
+			"quantity": 3,
+			"taxGroup": 'B',
+			"taxSpecific": 0
+		}
+		items.append(item)
+
+		# Create the request body
+		
+		request_data = {
+			'reference': '',
+			"innat": "NA",
+			"usconf": True,
+			'ifu': ifu,
+			# 'aib': 'B',#A ou B ou ''
+			'type': 'FV',
+			"operator": {
+					"id": "",
+					"name": denomination_entreprise
+				},
+			#client = request.POST.get("client")
+			'items': items,
+			"client": {
+					"ifu": customer_ifu,
+					"name": customer_name, 
+					"contact": customer_telephone,
+					"address": customer_address
+				},
+			"payment": [
+					{
+						"name": 'ESPECES',
+						"amount": 1500
+					}
+				]
+		}
+
+		try:
+			# Send the request to the API endpoint
+			response = requests.post('https://developper.impots.bj/sygmef-emcf/api/invoice', headers=headers, data=json.dumps(request_data))
+
+			# Parse the response JSON
+			response_data = response.json()
+
+			if response.status_code == 200:
+				# Get the invoice details
+				uid = response_data.get('uid', None)
+				if uid is not None:
+					# Get the invoice details
+					invoice_details = requests.get('https://developper.impots.bj/sygmef-emcf/api/invoice/' + uid, headers=headers).json()
+
+					# Finalize the invoice
+					security_elements = requests.put('https://developper.impots.bj/sygmef-emcf/api/invoice/' + uid + '/confirm', headers=headers).json()
+
+					status ='succès'
+					# security_elements.update({'uid':uid})
+					return response_data, invoice_details, security_elements # running...
+					#return response_data, security_elements # details for debug
+				else:
+					#return render(request, 'facturation/test_api.html', {'response_data': response_data})
+					#return HttpResponse(f' uid: {uid}, Failed to create invoice response_data: {response_data}')
+					status = 'Failed to create invoice'+str(response_data)
+					return status, response_data , f'uid: {uid}'
+
+		except requests.exceptions.RequestException as e:
+			#return HttpResponse(f'Error while creating invoice: {e}')
+			status = f'Error while creating invoice: {e}'
+			return status, None
+    #######################################################
+
+
 
 
     

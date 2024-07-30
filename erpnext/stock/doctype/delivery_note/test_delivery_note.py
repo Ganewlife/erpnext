@@ -10,8 +10,8 @@ from frappe.utils import add_days, cstr, flt, nowdate, nowtime, today
 
 from erpnext.accounts.doctype.account.test_account import get_inventory_account
 from erpnext.accounts.utils import get_balance_on
-from erpnext.selling.doctype.product_bundle.test_product_bundle import make_product_bundle
-from erpnext.selling.doctype.sales_order.test_sales_order import (
+from erpnext.selling_old.doctype.product_bundle.test_product_bundle import make_product_bundle
+from erpnext.selling_old.doctype.sales_order.test_sales_order import (
 	automatically_fetch_payment_terms,
 	compare_payment_schedules,
 	create_dn_against_so,
@@ -614,7 +614,7 @@ class TestDeliveryNote(FrappeTestCase):
 		self.assertEqual(gle_warehouse_amount, 1400)
 
 	def test_bin_details_of_packed_item(self):
-		from erpnext.selling.doctype.product_bundle.test_product_bundle import make_product_bundle
+		from erpnext.selling_old.doctype.product_bundle.test_product_bundle import make_product_bundle
 		from erpnext.stock.doctype.item.test_item import make_item
 
 		# test Update Items with product bundle
@@ -688,7 +688,7 @@ class TestDeliveryNote(FrappeTestCase):
 		)
 
 	def test_delivery_of_bundled_items_to_target_warehouse(self):
-		from erpnext.selling.doctype.customer.test_customer import create_internal_customer
+		from erpnext.selling_old.doctype.customer.test_customer import create_internal_customer
 
 		company = frappe.db.get_value("Warehouse", "Stores - TCP1", "company")
 		customer_name = create_internal_customer(
@@ -837,7 +837,7 @@ class TestDeliveryNote(FrappeTestCase):
 
 	def test_dn_billing_status_case2(self):
 		# SO -> SI and SO -> DN1, DN2
-		from erpnext.selling.doctype.sales_order.sales_order import (
+		from erpnext.selling_old.doctype.sales_order.sales_order import (
 			make_delivery_note,
 			make_sales_invoice,
 		)
@@ -879,8 +879,8 @@ class TestDeliveryNote(FrappeTestCase):
 
 	def test_dn_billing_status_case3(self):
 		# SO -> DN1 -> SI and SO -> SI and SO -> DN2
-		from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note
-		from erpnext.selling.doctype.sales_order.sales_order import (
+		from erpnext.selling_old.doctype.sales_order.sales_order import make_delivery_note
+		from erpnext.selling_old.doctype.sales_order.sales_order import (
 			make_sales_invoice as make_sales_invoice_from_so,
 		)
 
@@ -930,7 +930,7 @@ class TestDeliveryNote(FrappeTestCase):
 	def test_dn_billing_status_case4(self):
 		# SO -> SI -> DN
 		from erpnext.accounts.doctype.sales_invoice.sales_invoice import make_delivery_note
-		from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
+		from erpnext.selling_old.doctype.sales_order.sales_order import make_sales_invoice
 
 		so = make_sales_order(po_no="12345")
 
@@ -1016,7 +1016,7 @@ class TestDeliveryNote(FrappeTestCase):
 			self.assertEqual(expected_values[gle.account]["cost_center"], gle.cost_center)
 
 	def test_make_sales_invoice_from_dn_for_returned_qty(self):
-		from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note
+		from erpnext.selling_old.doctype.sales_order.sales_order import make_delivery_note
 		from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_invoice
 
 		so = make_sales_order(qty=2)
@@ -1125,7 +1125,7 @@ class TestDeliveryNote(FrappeTestCase):
 		#                 |---> DN(Partial Sales Return) ---> SI(Credit Note)
 
 		from erpnext.accounts.doctype.sales_invoice.sales_invoice import make_delivery_note
-		from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
+		from erpnext.selling_old.doctype.sales_order.sales_order import make_sales_invoice
 
 		so = make_sales_order(qty=10)
 		si = make_sales_invoice(so.name)
@@ -1158,7 +1158,7 @@ class TestDeliveryNote(FrappeTestCase):
 		self.assertEqual(dn2.per_billed, 100)
 
 	def test_internal_transfer_with_valuation_only(self):
-		from erpnext.selling.doctype.customer.test_customer import create_internal_customer
+		from erpnext.selling_old.doctype.customer.test_customer import create_internal_customer
 
 		item = make_item().name
 		warehouse = "_Test Warehouse - _TC"
@@ -1239,7 +1239,7 @@ class TestDeliveryNote(FrappeTestCase):
 		self.assertEqual(dn.items[0].net_rate, rate)
 
 	def test_internal_transfer_precision_gle(self):
-		from erpnext.selling.doctype.customer.test_customer import create_internal_customer
+		from erpnext.selling_old.doctype.customer.test_customer import create_internal_customer
 
 		item = make_item(properties={"valuation_method": "Moving Average"}).name
 		company = "_Test Company with perpetual inventory"
@@ -1306,7 +1306,7 @@ class TestDeliveryNote(FrappeTestCase):
 
 	def reserved_qty_check(self):
 		from erpnext.controllers.sales_and_purchase_return import make_return_doc
-		from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note
+		from erpnext.selling_old.doctype.sales_order.sales_order import make_delivery_note
 		from erpnext.stock.stock_balance import get_reserved_qty
 
 		dont_reserve_qty = frappe.db.get_single_value(
@@ -1522,8 +1522,8 @@ class TestDeliveryNote(FrappeTestCase):
 		)
 
 	def test_internal_transfer_for_non_stock_item(self):
-		from erpnext.selling.doctype.customer.test_customer import create_internal_customer
-		from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note
+		from erpnext.selling_old.doctype.customer.test_customer import create_internal_customer
+		from erpnext.selling_old.doctype.sales_order.sales_order import make_delivery_note
 
 		item = make_item(properties={"is_stock_item": 0}).name
 		warehouse = "_Test Warehouse - _TC"

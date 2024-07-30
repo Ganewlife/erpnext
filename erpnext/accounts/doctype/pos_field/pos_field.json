@@ -1,11 +1,12 @@
 {
+ "actions": [],
  "creation": "2019-08-22 14:35:39.043242",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "fieldname",
-  "label",
+  "custom_part_assur\u00e9",
+  "custom_part_assureur",
   "fieldtype",
   "column_break_7",
   "options",
@@ -15,23 +16,10 @@
  ],
  "fields": [
   {
-   "fieldname": "fieldname",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Fieldname"
-  },
-  {
    "fieldname": "fieldtype",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Fieldtype",
-   "read_only": 1
-  },
-  {
-   "fieldname": "label",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Label",
    "read_only": 1
   },
   {
@@ -61,10 +49,28 @@
    "fieldname": "default_value",
    "fieldtype": "Data",
    "label": "Default Value"
+  },
+  {
+   "fieldname": "custom_part_assur\u00e9",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Part assur\u00e9",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "custom_part_assureur",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Part assureur",
+   "non_negative": 1,
+   "precision": "3",
+   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2019-08-23 13:59:34.025523",
+ "links": [],
+ "modified": "2024-07-03 08:47:58.847618",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Field",
@@ -73,5 +79,6 @@
  "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

@@ -15,10 +15,10 @@ class POSField(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		custom_part_assureur: DF.Currency
+		custom_part_assuré: DF.Currency
 		default_value: DF.Data | None
-		fieldname: DF.Literal
 		fieldtype: DF.Data | None
-		label: DF.Data | None
 		options: DF.Text | None
 		parent: DF.Data
 		parentfield: DF.Data

@@ -117,7 +117,7 @@ frappe.ui.form.on("Issue", {
 
 		// create button for "Help Article"
 		// if (frappe.model.can_create("Help Article")) {
-		// 	// Removing Help Article button if exists to avoid multiple occurrence
+		// Removing Help Article button if exists to avoid multiple occurrence
 		// 	frm.timeline.wrapper.find('.action-btn .btn-add-to-kb').remove();
 
 		// 	let help_article = $(`
